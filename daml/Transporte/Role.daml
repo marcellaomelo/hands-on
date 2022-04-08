@@ -1,0 +1,64 @@
+module Transporte.Role where
+import Hospital.Service qualified as HospitalService
+import Paciente.Model qualified as PacienteModel
+--import DA.Optional
+
+template Role
+    with 
+       -- owner: Party
+        operator: Party
+        provider: Party
+       -- date: Date
+       -- localizacao: Text
+       -- status: Text
+       -- assinatura: Text
+        observers : [Party]
+    where
+        signatory operator, provider
+        observer observers
+
+        key (operator, provider) : (Party,Party) 
+        maintainer key._1
+
+        nonconsuming choice OfferHospitalService :  ContractId HospitalService.Offer
+            with    
+                customer: Party
+            controller provider
+                do 
+                    create HospitalService.Offer with..
+
+
+        nonconsuming choice CreatePaciente : ContractId PacienteModel.Paciente 
+            with    
+                hospital : Party
+                name : Text
+                lote : Text
+            controller provider 
+            do 
+               -- optionalHospitalServiceId <- lookupByKey @HospitalService.Service (operator,provider, customer)
+               -- assert (isSome optionalHospitalServiceId)
+                create PacienteModel.Paciente with..
+
+
+template Offer
+    with 
+       -- owner: Party
+        provider: Party
+        operator: Party
+       -- date: Date
+        observers : [Party]
+    where
+        signatory operator
+        observer provider
+
+        choice Accept : ContractId Role
+            controller provider    
+                do 
+                    create Role with operator; provider; observers 
+
+        choice Decline :()
+            with    
+                party : Party
+            controller provider
+                do 
+                   return()          

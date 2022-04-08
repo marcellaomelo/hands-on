@@ -1,0 +1,15 @@
+module Paciente.Model where
+
+template Paciente
+    with
+        operator : Party
+        provider : Party
+        hospital : Party 
+        lote: Text 
+        name :Text
+
+    where 
+        signatory operator, provider 
+        observer hospital 
+           
+

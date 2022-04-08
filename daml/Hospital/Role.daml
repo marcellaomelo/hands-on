@@ -1,0 +1,23 @@
+module Hospital.Role where
+import Transporte.Role qualified as TransporteRole 
+
+template Role
+    with 
+        operator: Party
+        observers : [Party]
+    where
+        signatory operator
+        observer observers
+        
+        key operator : Party 
+        maintainer key 
+
+        nonconsuming choice OfferTransporteRole : ContractId TransporteRole.Offer
+            with 
+                provider : Party
+            controller operator 
+                do 
+                    create TransporteRole.Offer with operator; provider; observers
+
+         
+                            

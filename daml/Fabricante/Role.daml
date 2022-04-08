@@ -1,0 +1,23 @@
+module Fabricante.Role where
+import Transporte.Service qualified as TransporteService 
+
+template Role
+    with 
+        provider: Party
+        observers : [Party]
+    where
+        signatory provider
+        observer observers
+        
+        key provider : Party 
+        maintainer key 
+
+        nonconsuming choice RequestTransporteService : ContractId TransporteService.Request
+            with 
+                transporteProvider : Party
+            controller provider 
+                do 
+                    create TransporteService.Request with customer = provider; provider = transporteProvider
+
+         
+                            
