@@ -1,5 +1,5 @@
 module Fabricante.Role where
-import Transporte.Service qualified as TransporteService 
+import Transportadora.Service qualified as TransportadoraService 
 
 template Role
     with 
@@ -12,12 +12,12 @@ template Role
         key provider : Party 
         maintainer key 
 
-        nonconsuming choice RequestTransporteService : ContractId TransporteService.Request
+        nonconsuming choice RequestTransportadoraService : ContractId TransportadoraService.Request
             with 
-                transporteProvider : Party
+                transportadoraProvider : Party
             controller provider 
                 do 
-                    create TransporteService.Request with customer = provider; provider = transporteProvider
+                    create TransportadoraService.Request with customer = provider; provider = transportadoraProvider
 
          
                             

@@ -1,4 +1,4 @@
-module Fabricante.Service where
+module Transportadora.Service where
 
 
 template Service
@@ -12,17 +12,6 @@ template Service
 
         key(operator, provider, customer) : (Party,Party,Party)
         maintainer key._1 
-
-        choice InformarHospital : ()
-            with
-                ctrl : Party   
-            controller ctrl 
-                do
-                    assertMsg 
-                        ("crtl" <> show ctrl <> "Informar envio de medicamento pela transportadora")  
-                        (ctrl == provider || ctrl == customer )   
-
-                    return()  
 
 
 template Request
@@ -45,4 +34,4 @@ template Request
         operator : Party
       controller operator, provider
       do
-        create Service with .. 
+        create Service with ..

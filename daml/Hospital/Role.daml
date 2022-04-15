@@ -1,23 +1,23 @@
 module Hospital.Role where
-import Transporte.Role qualified as TransporteRole 
+import Fabricante.Service qualified as FabricanteService 
 
 template Role
     with 
-        operator: Party
+        provider: Party
         observers : [Party]
     where
-        signatory operator
+        signatory provider
         observer observers
         
-        key operator : Party 
+        key provider : Party 
         maintainer key 
 
-        nonconsuming choice OfferTransporteRole : ContractId TransporteRole.Offer
+        nonconsuming choice RequestFabricanteService : ContractId FabricanteService.Request
             with 
-                provider : Party
-            controller operator 
+                fabricanteProvider : Party
+            controller provider 
                 do 
-                    create TransporteRole.Offer with operator; provider; observers
+                    create FabricanteService.Request with customer = provider; provider = fabricanteProvider
 
          
                             

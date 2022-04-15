@@ -13,34 +13,25 @@ template Service
         key(operator, provider, customer) : (Party,Party,Party)
         maintainer key._1 
 
-        choice Terminate : ()
-            with
-                ctrl : Party   
-            controller ctrl 
-                do
-                    assertMsg 
-                        ("crtl" <> show ctrl <> "não tem permissão para realizar essa ação")  
-                        (ctrl == provider || ctrl == customer )   
 
-                    return()  
+template Request
+  with
+    customer : Party
+    provider : Party
+  where
+    signatory customer
+    observer provider
+    choice Cancel : ()
+        controller customer 
+        do pure ()
 
-template Offer
-    with 
-       -- owner: Party
-        provider: Party
-        operator: Party
-        customer : Party
-        --observers : [Party]
-    where
-        signatory operator, provider
-        observer customer
+    choice Reject : ()    
+        controller provider 
+        do pure ()
 
-        choice Accept : ContractId Service
-            controller customer    
-                do 
-                    create Service with .. 
-
-        choice Decline :()
-            controller customer
-                do 
-                   pure()    
+    choice Approve : ContractId Service
+      with
+        operator : Party
+      controller operator, provider
+      do
+        create Service with ..
