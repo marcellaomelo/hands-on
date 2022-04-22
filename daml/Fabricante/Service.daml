@@ -1,11 +1,12 @@
 module Fabricante.Service where
 
+import Fabricante.Model
 
 template Service
     with 
         operator: Party
-        provider: Party
-        customer: Party
+        provider: Party -- fabricante
+        customer: Party -- hospital
         --observers : [Party]
     where   
         signatory operator, provider, customer
@@ -13,17 +14,27 @@ template Service
         key(operator, provider, customer) : (Party,Party,Party)
         maintainer key._1 
 
-        choice InformarHospital : ()
-            with
-                ctrl : Party   
-            controller ctrl 
-                do
-                    assertMsg 
-                        ("crtl" <> show ctrl <> "Informar envio de medicamento pela transportadora")  
-                        (ctrl == provider || ctrl == customer )   
+        choice PedirMedicamento : ContractId PedidoMedicamento 
+          with
+            name : Text
+          controller customer
+            do
+              create PedidoMedicamento with ..
 
-                    return()  
-
+        {-      
+        choice InformarHospital : ContractId MedicamentExpedido 
+          --with
+          -- pedidoMedicamentoCid : ContractId PedidoMedicamento
+          -- confirmacaoRecolhaCid : ContractId ConfirmacaoRecolha
+          -- lote : Text
+          controller provider 
+            do
+              -- pedidoMedicamento <- fetch pedidoMedicamentoCid
+              -- confirmacaoRecolha <- fetch confirmacaoRecolhaCid
+              -- assertMsg (pedidoMedicamento.name == confirmacaoRecolha.name)
+              --   
+              create MedicamentExpedido with ..  
+        -}
 
 template Request
   with

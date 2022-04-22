@@ -1,0 +1,18 @@
+module Fabricante.Model where
+
+template PedidoMedicamento
+  with
+    provider : Party -- fabricante
+    customer : Party -- hospital
+    name : Text
+  where
+    signatory provider, customer
+
+template MedicamentExpedido
+  with
+    provider : Party -- fabricante
+    customer : Party -- hospital
+    name : Text
+    lote : Text
+  where
+    signatory provider, customer

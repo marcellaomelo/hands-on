@@ -4,8 +4,8 @@ module Hospital.Service where
 template Service
     with 
         operator: Party
-        provider: Party
-        customer: Party
+        provider: Party -- hospital
+        customer: Party -- paciente
         --observers : [Party]
     where   
         signatory operator, provider, customer
