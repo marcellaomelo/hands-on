@@ -1,0 +1,19 @@
+module Hospital.Model where
+
+template PedidoMedicamento
+  with
+    provider : Party -- fabricante
+    customer : Party -- hospital
+    name : Text
+  where
+    signatory provider, customer
+
+template AdmRemedio
+  with
+    provider : Party -- Hospital
+    customer : Party -- paciente
+    name : Text
+  where
+    signatory provider, customer    
+
+

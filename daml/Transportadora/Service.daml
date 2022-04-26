@@ -1,5 +1,6 @@
 module Transportadora.Service where
 
+import Transportadora.Model
 
 template Service
     with 
@@ -12,6 +13,23 @@ template Service
 
         key(operator, provider, customer) : (Party,Party,Party)
         maintainer key._1 
+
+        choice PedirEntrega : ContractId PedidoEntrega 
+          with
+            name : Text
+          controller customer
+            do
+              create PedidoEntrega with ..
+
+
+        choice ConfirmarRecolha : ContractId ConfirmaRecolha 
+          with
+            name : Text
+          controller provider
+            do
+              create ConfirmaRecolha with ..      
+
+            
 
         -- choice fabricante requere transporte
           -- 

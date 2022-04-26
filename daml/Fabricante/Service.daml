@@ -1,6 +1,7 @@
 module Fabricante.Service where
 
 import Fabricante.Model
+import Transportadora.Model
 
 template Service
     with 
@@ -20,6 +21,33 @@ template Service
           controller customer
             do
               create PedidoMedicamento with ..
+        
+        
+        choice ExpedirMedicamento : ContractId MedicamentoExpedido 
+          with
+            pedidoMedicamentoCid : ContractId PedidoMedicamento
+            confirmaRecolhaCid: ContractId ConfirmaRecolha 
+            name : Text
+            lote: Text
+          controller customer
+            do
+              pedidoMedicamento <- fetch pedidoMedicamentoCid
+              confirmaRecolha <- fetch confirmaRecolhaCid
+              assertMsg 
+               "Nome incorreto"
+                (pedidoMedicamento.name == confirmaRecolha.name)
+
+              create MedicamentoExpedido with ..
+
+        choice ConfirmarEntrega : ContractId ConfirmacaoEntrega 
+          with
+            name : Text
+            lote: Text
+          controller customer
+            do
+              create ConfirmacaoEntrega with ..
+              
+                       
 
         {-      
         choice InformarHospital : ContractId MedicamentExpedido 

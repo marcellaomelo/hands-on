@@ -8,11 +8,22 @@ template PedidoMedicamento
   where
     signatory provider, customer
 
-template MedicamentExpedido
+
+
+template MedicamentoExpedido
   with
     provider : Party -- fabricante
     customer : Party -- hospital
     name : Text
-    lote : Text
+    lote: Text
   where
     signatory provider, customer
+
+
+template ConfirmacaoEntrega
+  with
+    provider : Party -- fabricante
+    customer : Party -- hospital
+    name : Text
+  where
+    signatory provider, customer    

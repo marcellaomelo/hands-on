@@ -1,5 +1,5 @@
 module Hospital.Service where
-
+import Hospital.Model
 
 template Service
     with 
@@ -12,6 +12,16 @@ template Service
 
         key(operator, provider, customer) : (Party,Party,Party)
         maintainer key._1 
+
+      
+        choice AdmrRemedio : ContractId AdmRemedio 
+          with
+            name : Text
+            lote: Text
+          controller provider
+            do
+              create AdmRemedio with ..
+                    
 
 
 template Request

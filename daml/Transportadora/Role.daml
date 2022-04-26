@@ -1,33 +1,33 @@
 module Transportadora.Role where
-import Paciente.Model qualified as PacienteModel
+--import Paciente.Model qualified as PacienteModel
 --import DA.Optional
 
 template Role
     with 
-       -- owner: Party
-        operator: Party
-        provider: Party
+         owner: Party
+         operator: Party
+         provider: Party
        -- date: Date
        -- localizacao: Text
        -- status: Text
        -- assinatura: Text
-        observers : [Party]
-    where
-        signatory operator, provider
-        observer observers
+         observers : [Party]
+      where
+         signatory operator, provider
+         observer observers
 
-        key (operator, provider) : (Party,Party) 
-        maintainer key._1
+       -- key (operator, provider) : (Party,Party) 
+       -- maintainer key._1
 
-        nonconsuming choice CreatePaciente : ContractId PacienteModel.Paciente 
-            with    
-                hospital : Party
-                name : Text
-                lote : Text
-            controller provider 
-            do 
+        --nonconsuming choice CreatePaciente : ContractId PacienteModel.Paciente 
+           -- with    
+               -- hospital : Party
+               -- name : Text
+               -- lote : Text
+            --controller provider 
+            --do --
                -- optionalHospitalServiceId <- lookupByKey @HospitalService.Service (operator,provider, customer)
                -- assert (isSome optionalHospitalServiceId)
-                create PacienteModel.Paciente with..
+               -- create PacienteModel.Paciente with..
 
 

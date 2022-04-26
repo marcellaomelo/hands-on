@@ -1,0 +1,19 @@
+module Transportadora.Model where
+
+template PedidoEntrega
+  with
+    provider : Party -- fabricante
+    customer : Party -- hospital
+    name : Text
+  where
+    signatory provider, customer
+
+
+
+template ConfirmaRecolha
+  with
+    provider : Party -- fabricante
+    customer : Party -- hospital
+    name : Text
+  where
+    signatory provider, customer    
