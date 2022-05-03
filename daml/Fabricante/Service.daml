@@ -5,64 +5,108 @@ import Transportadora.Model
 
 template Service
     with 
-        operator: Party
         provider: Party -- fabricante
         customer: Party -- hospital
         --observers : [Party]
     where   
-        signatory operator, provider, customer
+        signatory  provider, customer
 
-        key(operator, provider, customer) : (Party,Party,Party)
+        key(provider, customer) : (Party,Party)
         maintainer key._1 
 
         choice PedirMedicamento : ContractId PedidoMedicamento 
           with
             name : Text
+            lote: Text
+            date: Date
+            temperatura: Text
           controller customer
             do
               create PedidoMedicamento with ..
-        
-        
+
         choice ExpedirMedicamento : ContractId MedicamentoExpedido 
           with
             pedidoMedicamentoCid : ContractId PedidoMedicamento
-            confirmaRecolhaCid: ContractId ConfirmaRecolha 
+            confirmaRecolhaCid: ContractId ConfirmacaoRecolha  
             name : Text
+            status: Text
             lote: Text
+            date: Date
+            temperatura: Text
           controller customer
             do
               pedidoMedicamento <- fetch pedidoMedicamentoCid
               confirmaRecolha <- fetch confirmaRecolhaCid
               assertMsg 
-               "Nome incorreto"
+               "Nome do medicamento está incorreto"
                 (pedidoMedicamento.name == confirmaRecolha.name)
+              assertMsg 
+               "Lote do medicamento está incorreto"
+                (pedidoMedicamento.lote == confirmaRecolha.lote)
+              assertMsg 
+               "Temperatura do medicamento está incorreta"
+                (pedidoMedicamento.temperatura == confirmaRecolha.temperatura)  
 
               create MedicamentoExpedido with ..
 
         choice ConfirmarEntrega : ContractId ConfirmacaoEntrega 
           with
+            confirmaEntregaCid: ContractId ConfirmacaoEntrega
+            confirmaRecolhaCid: ContractId ConfirmacaoRecolha
             name : Text
+            status : Text
             lote: Text
+            date: Date
+            temperatura: Text
           controller customer
             do
-              create ConfirmacaoEntrega with ..
-              
-                       
+              confirmaRecolha <- fetch confirmaRecolhaCid
+              confirmaEntrega <- fetch confirmaEntregaCid
+              assertMsg 
+               "Nome do medicamento está incorreto"
+                (confirmaEntrega.name == confirmaRecolha.name)
+              assertMsg 
+               "Lote do medicamento está incorreto"
+                (confirmaEntrega.lote == confirmaRecolha.lote)
+              assertMsg 
+               "Temperatura do medicamento está incorreta"
+                (confirmaEntrega.temperatura == confirmaRecolha.temperatura)
+              assertMsg 
+               "Estado da entrega não atualizado"
+                (confirmaEntrega.status  == confirmaRecolha.status)
+              assertMsg 
+               "Medicamento não entregue na data prevista"
+                (confirmaEntrega.date == confirmaRecolha.dataPrevistaEntrega)
+            
 
-        {-      
-        choice InformarHospital : ContractId MedicamentExpedido 
-          --with
-          -- pedidoMedicamentoCid : ContractId PedidoMedicamento
-          -- confirmacaoRecolhaCid : ContractId ConfirmacaoRecolha
-          -- lote : Text
-          controller provider 
+              create ConfirmacaoEntrega with ..
+
+
+        choice InformaHospital : ContractId InformarHospital -- duvida
+          with
+            informarHospitalCid: ContractId InformarHospital
+            confirmaRecolhaCid: ContractId ConfirmacaoRecolha
+            medicamentoExpedidoCid: ContractId MedicamentoExpedido
+            name : Text
+            status : Text
+            lote: Text
+            date: Date
+            temperatura: Text
+          controller customer
             do
-              -- pedidoMedicamento <- fetch pedidoMedicamentoCid
-              -- confirmacaoRecolha <- fetch confirmacaoRecolhaCid
-              -- assertMsg (pedidoMedicamento.name == confirmacaoRecolha.name)
-              --   
-              create MedicamentExpedido with ..  
-        -}
+              medicamentoExpedido <- fetch medicamentoExpedidoCid
+              informarHospital <- fetch informarHospitalCid
+              assertMsg 
+               "Medicamento foi entregue a transportadora"
+                (medicamentoExpedido.status ==  "Enviado")
+              assertMsg 
+               "Lote do medicamento"
+                (medicamentoExpedido.lote == informarHospital.lote)
+              assertMsg 
+               "Nome do medicamento"
+                (medicamentoExpedido.name == informarHospital.name)  
+             
+              create InformarHospital with ..      
 
 template Request
   with
@@ -80,8 +124,7 @@ template Request
         do pure ()
 
     choice Approve : ContractId Service
-      with
-        operator : Party
-      controller operator, provider
+
+      controller  provider
       do
         create Service with .. 

@@ -2,16 +2,16 @@ module Transportadora.Service where
 
 import Transportadora.Model
 
+import Fabricante.Model
 template Service
     with 
-        operator: Party
         provider: Party -- transportadora
         customer: Party -- fabricante
         --observers : [Party]
     where   
-        signatory operator, provider, customer
+        signatory  provider, customer
 
-        key(operator, provider, customer) : (Party,Party,Party)
+        key(provider, customer) : (Party,Party)
         maintainer key._1 
 
         choice PedirEntrega : ContractId PedidoEntrega 
@@ -22,12 +22,46 @@ template Service
               create PedidoEntrega with ..
 
 
-        choice ConfirmarRecolha : ContractId ConfirmaRecolha 
+        choice ConfirmarRecolha : ContractId ConfirmacaoRecolha 
           with
-            name : Text
+            confirmaEntregaCid: ContractId ConfirmacaoEntrega
+            confirmaRecolhaCid: ContractId ConfirmacaoRecolha
+            name: Text
+            status : Text
+            lote: Text
+            date: Date
+            dataPrevistaEntrega: Date
+            temperatura: Text
           controller provider
             do
-              create ConfirmaRecolha with ..      
+              confirmaEntrega <- fetch confirmaEntregaCid
+              confirmaRecolha <- fetch confirmaRecolhaCid
+              assertMsg 
+                "Nome do medicamento está incorreto"
+                  (confirmaEntrega.name == confirmaRecolha.name)
+              assertMsg 
+                "Temperatura medicamento está incorreto"
+                  (confirmaEntrega.temperatura == confirmaRecolha.temperatura)
+              assertMsg 
+                "Lote do medicamento está incorreto"
+                  (confirmaEntrega.name == confirmaRecolha.name) 
+
+              create ConfirmacaoRecolha with ..
+
+
+        choice RequisicaoTransporte : ContractId RequerTransporte 
+          with
+            
+            name: Text
+            status : Text
+            lote: Text
+            date: Date
+            dataPrevistaEntrega: Date
+            temperatura: Text
+          controller provider
+            do
+              
+              create RequerTransporte with ..               
 
             
 
@@ -52,8 +86,7 @@ template Request
         do pure ()
 
     choice Approve : ContractId Service
-      with
-        operator : Party
-      controller operator, provider
+
+      controller  provider
       do
         create Service with ..

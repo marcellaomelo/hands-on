@@ -10,10 +10,28 @@ template PedidoEntrega
 
 
 
-template ConfirmaRecolha
+template ConfirmacaoRecolha
   with
     provider : Party -- fabricante
     customer : Party -- hospital
-    name : Text
+    name: Text
+    status : Text
+    lote: Text
+    date: Date
+    dataPrevistaEntrega: Date -- duvida
+    temperatura: Text
   where
-    signatory provider, customer    
+    signatory provider, customer 
+
+template RequerTransporte
+  with
+    provider : Party -- 
+    customer : Party -- 
+    name: Text
+    status : Text
+    lote: Text
+    date: Date
+    dataPrevistaEntrega: Date -- duvida
+    temperatura: Text
+  where
+    signatory provider, customer          

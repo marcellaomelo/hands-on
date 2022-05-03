@@ -1,25 +1,41 @@
 module Testes.Test where
---import Fabricante.Role qualified as FabricanteRole
---import Transporte.Role qualified as TransporteRole
---import Hospital.Service qualified as HospitalService
---import Daml.Script
+import Fabricante.Role qualified as FabricanteRole
+import Fabricante.Service qualified as FabricanteService
+import Transportadora.Role qualified as TransporteRole
+import Hospital.Role qualified as HospitalRole
+import Transportadora.Service qualified as TransportadoraService
+import Hospital.Service qualified as HospitalService
+import Daml.Script
 
---setup : Script ()
---setup = script do
+setup : Script ()
+setup = script do
 
---operator     <- allocatePartyWithHint "Operator" $ PartyIdHint "Fabricante Anvisa"
---transporte     <- allocatePartyWithHint "Transporte" $ PartyIdHint "Transportadora - SA"
---public     <- allocatePartyWithHint "Public" $ PartyIdHint "Public"
---hospital <- allocatePartyWithHint "Hospital" $ PartyIdHint "Hospital SirioLibanes"
+    fabricante  <- allocatePartyWithHint "Fabricante" $ PartyIdHint "Fabricante"
+    hospital  <- allocatePartyWithHint "Hospital" $ PartyIdHint "Hospital"
+    transportadora  <- allocatePartyWithHint "Transportadora" $ PartyIdHint "Transportadora"
+    paciente  <- allocatePartyWithHint "Paciente" $ PartyIdHint "Paciente"
 
---operatorRoleCid <- submit operator do createCmd FabricanteRole.Role with observers = [public]; ..
---transporteRoleOfferCid <- submit  operator do exerciseCmd operatorRoleCid  FabricanteRole.OfferTransporteRole with provider = transporte
---transporteRoleCid <- submit transporte do exerciseCmd transporteRoleOfferCid TransporteRole.Accept
+
+
+    hospitalRoleCid <- submit hospital do createCmd HospitalRole.Role with provider = hospital; observers = []
+    requestFabricanteServiceCid <- submit hospital do exerciseCmd hospitalRoleCid HospitalRole.RequestFabricanteService with fabricanteProvider = fabricante 
+    fabricanteRoleCid <- submit fabricante do exerciseCmd requestFabricanteServiceCid FabricanteService.Approve  
+
+    
+
+
+
+
+  --  fabricanteRoleCid <- submit fabricante do createCmd FabricanteRole.Role with provider = fabricante; observers = []
+
+   -- requestTransportadoraServiceCid <- submit  fabricante do exerciseCmd fabricanteRoleCid  FabricanteRole.RequestTransportadoraService with transportadoraProvider = transportadora
+    
+  --  transporteRoleCid <- submit transportadora do exerciseCmd requestTransportadoraServiceCid TransportadoraService.Approve
 
 --hospitalServiceOfferCid <- submit transporte do exerciseCmd transporteRoleCid TransporteRole.OfferHospitalService with customer = hospital  
 --hospitalServiceCid <- submit hospital do exerciseCmd hospitalServiceOfferCid HospitalService.Accept
 
 --submit transporte  do exerciseCmd transporteRoleCid TransporteRole.CreatePaciente with hospital;  name = "Anfotericina B" ; lote = "010101"
 
---pure()
-
+    pure()
+--

@@ -13,6 +13,9 @@ template AdmRemedio
     provider : Party -- Hospital
     customer : Party -- paciente
     name : Text
+    lote:Text 
+    status: Text
+    date: Date
   where
     signatory provider, customer    
 

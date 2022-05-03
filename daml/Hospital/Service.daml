@@ -17,7 +17,9 @@ template Service
         choice AdmrRemedio : ContractId AdmRemedio 
           with
             name : Text
-            lote: Text
+            lote:Text 
+            status: Text
+            date: Date
           controller provider
             do
               create AdmRemedio with ..
