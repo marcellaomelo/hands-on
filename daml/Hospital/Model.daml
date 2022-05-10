@@ -20,3 +20,10 @@ template AdmRemedio
     signatory provider, customer    
 
 
+template Stock
+  with
+    provider : Party -- stock
+    name : Text
+    quantidade: Text
+  where
+    signatory provider

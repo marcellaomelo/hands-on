@@ -5,13 +5,8 @@ template PedidoMedicamento
     provider : Party -- fabricante
     customer : Party -- hospital
     name : Text
-    lote: Text
-    date: Date
-    temperatura: Text
   where
     signatory provider, customer
-
-
 
 template MedicamentoExpedido
   with
@@ -26,7 +21,7 @@ template MedicamentoExpedido
     signatory provider, customer
 
 
-template ConfirmacaoEntrega
+template ConfirmacaoEntregaHospital
   with
     provider : Party -- fabricante
     customer : Party -- hospital
@@ -38,14 +33,3 @@ template ConfirmacaoEntrega
   where
     signatory provider, customer    
 
-template InformarHospital
-  with
-    provider : Party -- fabricante
-    customer : Party -- hospital
-    name: Text
-    status : Text
-    lote: Text
-    date: Date
-    temperatura: Text
-  where
-    signatory provider, customer    

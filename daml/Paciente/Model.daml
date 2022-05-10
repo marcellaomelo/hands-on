@@ -1,0 +1,9 @@
+module Paciente.Model where
+
+template RequerAdmrRemedio
+  with
+    provider : Party -- hospital
+    customer : Party -- paciente
+    name: Text
+  where
+    signatory provider, customer     

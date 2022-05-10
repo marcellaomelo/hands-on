@@ -3,31 +3,10 @@ module Transportadora.Role where
 --import DA.Optional
 
 template Role
-    with 
-         owner: Party
-         operator: Party
+    with        
          provider: Party
-       -- date: Date
-       -- localizacao: Text
-       -- status: Text
-       -- assinatura: Text
          observers : [Party]
       where
-         signatory operator, provider
+         signatory provider
          observer observers
-
-       -- key (operator, provider) : (Party,Party) 
-       -- maintainer key._1
-
-        --nonconsuming choice CreatePaciente : ContractId PacienteModel.Paciente 
-           -- with    
-               -- hospital : Party
-               -- name : Text
-               -- lote : Text
-            --controller provider 
-            --do --
-               -- optionalHospitalServiceId <- lookupByKey @HospitalService.Service (operator,provider, customer)
-               -- assert (isSome optionalHospitalServiceId)
-               -- create PacienteModel.Paciente with..
-
 

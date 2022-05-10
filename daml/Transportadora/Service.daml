@@ -1,8 +1,10 @@
 module Transportadora.Service where
 
 import Transportadora.Model
-
 import Fabricante.Model
+
+import DA.Date (toDateUTC)
+
 template Service
     with 
         provider: Party -- transportadora
@@ -14,28 +16,26 @@ template Service
         key(provider, customer) : (Party,Party)
         maintainer key._1 
 
-        choice PedirEntrega : ContractId PedidoEntrega 
+        nonconsuming choice ConfirmaEntrega : ContractId Transportadora.Model.ConfirmacaoEntrega 
           with
+            confirmacaoRecolhaCid : ContractId ConfirmacaoRecolha
             name : Text
-          controller customer
-            do
-              create PedidoEntrega with ..
-
-
-        choice ConfirmarRecolha : ContractId ConfirmacaoRecolha 
-          with
-            confirmaEntregaCid: ContractId ConfirmacaoEntrega
-            confirmaRecolhaCid: ContractId ConfirmacaoRecolha
-            name: Text
-            status : Text
-            lote: Text
-            date: Date
-            dataPrevistaEntrega: Date
-            temperatura: Text
           controller provider
             do
-              confirmaEntrega <- fetch confirmaEntregaCid
-              confirmaRecolha <- fetch confirmaRecolhaCid
+              --validar que recolha bate certo com a entrega
+              create Transportadora.Model.ConfirmacaoEntrega with ..
+
+
+        nonconsuming choice ConfirmarRecolha : ContractId ConfirmacaoRecolha 
+          with
+            requerTransporteCid : ContractId RequerTransporte                         
+            dataPrevistaEntrega: Date
+            temperatura : Text
+          controller provider
+            do
+              now <- getTime
+              RequerTransporte{..} <- fetch requerTransporteCid                    
+              {-        
               assertMsg 
                 "Nome do medicamento está incorreto"
                   (confirmaEntrega.name == confirmaRecolha.name)
@@ -45,23 +45,21 @@ template Service
               assertMsg 
                 "Lote do medicamento está incorreto"
                   (confirmaEntrega.name == confirmaRecolha.name) 
+              -}
+              archive requerTransporteCid
+              create ConfirmacaoRecolha with date = toDateUTC now; ..
 
-              create ConfirmacaoRecolha with ..
 
-
-        choice RequisicaoTransporte : ContractId RequerTransporte 
+        nonconsuming choice RequisicaoTransporte : ContractId RequerTransporte 
           with
-            
-            name: Text
+            name : Text
             status : Text
-            lote: Text
-            date: Date
+            lote: Text          
             dataPrevistaEntrega: Date
-            temperatura: Text
-          controller provider
+          controller customer
             do
-              
-              create RequerTransporte with ..               
+              now <- getTime              
+              create RequerTransporte with date = toDateUTC now; ..               
 
             
 

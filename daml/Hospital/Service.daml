@@ -1,28 +1,37 @@
 module Hospital.Service where
 import Hospital.Model
+import DA.Date (toDateUTC)
 
 template Service
     with 
-        operator: Party
         provider: Party -- hospital
         customer: Party -- paciente
         --observers : [Party]
     where   
-        signatory operator, provider, customer
+        signatory  provider, customer
 
-        key(operator, provider, customer) : (Party,Party,Party)
+        key(provider, customer) : (Party,Party)
         maintainer key._1 
 
-      
-        choice AdmrRemedio : ContractId AdmRemedio 
+        nonconsuming choice StockMedicamentos : ContractId Stock 
           with
+            name : Text
+            quantidade:Text 
+          controller provider
+            do
+              create Stock with ..
+
+        nonconsuming choice AdmrRemedio : ContractId AdmRemedio 
+          with
+            stockCid: ContractId Stock 
             name : Text
             lote:Text 
             status: Text
-            date: Date
           controller provider
             do
-              create AdmRemedio with ..
+              now <- getTime
+              archive stockCid
+              create AdmRemedio  with date = toDateUTC now; ..
                     
 
 
@@ -43,7 +52,6 @@ template Request
 
     choice Approve : ContractId Service
       with
-        operator : Party
-      controller operator, provider
+      controller provider
       do
         create Service with ..

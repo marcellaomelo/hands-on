@@ -1,0 +1,20 @@
+module Paciente.Role where
+import Hospital.Service qualified as HospitalService 
+
+template Role
+    with 
+        provider: Party -- hospital
+        observers : [Party]
+    where
+        signatory provider
+        observer observers
+        
+        key provider : Party 
+        maintainer key 
+
+        nonconsuming choice RequestHospitalService : ContractId HospitalService.Request
+            with 
+                hospitalProvider : Party
+            controller provider 
+                do 
+                    create HospitalService.Request with customer = provider; provider = hospitalProvider

@@ -1,6 +1,6 @@
 module Transportadora.Model where
 
-template PedidoEntrega
+template ConfirmacaoEntrega
   with
     provider : Party -- fabricante
     customer : Party -- hospital
@@ -32,6 +32,5 @@ template RequerTransporte
     lote: Text
     date: Date
     dataPrevistaEntrega: Date -- duvida
-    temperatura: Text
   where
-    signatory provider, customer          
+    signatory provider, customer     

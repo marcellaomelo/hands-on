@@ -2,57 +2,48 @@ module Fabricante.Service where
 
 import Fabricante.Model
 import Transportadora.Model
+import DA.Date (toDateUTC)
 
 template Service
     with 
         provider: Party -- fabricante
         customer: Party -- hospital
-        --observers : [Party]
     where   
         signatory  provider, customer
 
         key(provider, customer) : (Party,Party)
         maintainer key._1 
 
-        choice PedirMedicamento : ContractId PedidoMedicamento 
+        nonconsuming choice PedirMedicamento : ContractId PedidoMedicamento 
           with
             name : Text
-            lote: Text
-            date: Date
-            temperatura: Text
           controller customer
             do
               create PedidoMedicamento with ..
 
-        choice ExpedirMedicamento : ContractId MedicamentoExpedido 
+        nonconsuming choice ExpedirMedicamento : ContractId MedicamentoExpedido 
           with
             pedidoMedicamentoCid : ContractId PedidoMedicamento
             confirmaRecolhaCid: ContractId ConfirmacaoRecolha  
             name : Text
             status: Text
             lote: Text
-            date: Date
             temperatura: Text
-          controller customer
+          controller provider
             do
+              now <- getTime
               pedidoMedicamento <- fetch pedidoMedicamentoCid
               confirmaRecolha <- fetch confirmaRecolhaCid
               assertMsg 
                "Nome do medicamento está incorreto"
-                (pedidoMedicamento.name == confirmaRecolha.name)
-              assertMsg 
-               "Lote do medicamento está incorreto"
-                (pedidoMedicamento.lote == confirmaRecolha.lote)
-              assertMsg 
-               "Temperatura do medicamento está incorreta"
-                (pedidoMedicamento.temperatura == confirmaRecolha.temperatura)  
-
-              create MedicamentoExpedido with ..
-
-        choice ConfirmarEntrega : ContractId ConfirmacaoEntrega 
+                (pedidoMedicamento.name == confirmaRecolha.name)                          
+              archive pedidoMedicamentoCid
+              create MedicamentoExpedido with date = toDateUTC now; ..
+        
+        nonconsuming choice ConfirmarEntregaHospital : ContractId ConfirmacaoEntregaHospital 
           with
-            confirmaEntregaCid: ContractId ConfirmacaoEntrega
-            confirmaRecolhaCid: ContractId ConfirmacaoRecolha
+            medicamentoExpedidoCid : ContractId MedicamentoExpedido
+           -- confirmacaoEntregaHospitalCid: ContractId Fabricante.Model.ConfirmacaoEntregaHospital
             name : Text
             status : Text
             lote: Text
@@ -60,54 +51,25 @@ template Service
             temperatura: Text
           controller customer
             do
-              confirmaRecolha <- fetch confirmaRecolhaCid
-              confirmaEntrega <- fetch confirmaEntregaCid
-              assertMsg 
+              --MedicamentoExpedido{..} <- fetch medicamentoExpedidoCid
+              medicamentoExpedido <- fetch medicamentoExpedidoCid
+             -- confirmaEntregaHospital <- fetch confirmacaoEntregaHospitalCid
+            {-   assertMsg 
                "Nome do medicamento está incorreto"
-                (confirmaEntrega.name == confirmaRecolha.name)
+                (confirmaEntregaHospital.name == medicamentoExpedido.name)
               assertMsg 
                "Lote do medicamento está incorreto"
-                (confirmaEntrega.lote == confirmaRecolha.lote)
+                (confirmaEntregaHospital.lote == medicamentoExpedido.lote)
               assertMsg 
                "Temperatura do medicamento está incorreta"
-                (confirmaEntrega.temperatura == confirmaRecolha.temperatura)
+                (confirmaEntregaHospital.temperatura == medicamentoExpedido.temperatura)
               assertMsg 
                "Estado da entrega não atualizado"
-                (confirmaEntrega.status  == confirmaRecolha.status)
-              assertMsg 
-               "Medicamento não entregue na data prevista"
-                (confirmaEntrega.date == confirmaRecolha.dataPrevistaEntrega)
-            
-
-              create ConfirmacaoEntrega with ..
+                (confirmaEntregaHospital.status  == medicamentoExpedido.status)  -}          
+              create ConfirmacaoEntregaHospital with ..
 
 
-        choice InformaHospital : ContractId InformarHospital -- duvida
-          with
-            informarHospitalCid: ContractId InformarHospital
-            confirmaRecolhaCid: ContractId ConfirmacaoRecolha
-            medicamentoExpedidoCid: ContractId MedicamentoExpedido
-            name : Text
-            status : Text
-            lote: Text
-            date: Date
-            temperatura: Text
-          controller customer
-            do
-              medicamentoExpedido <- fetch medicamentoExpedidoCid
-              informarHospital <- fetch informarHospitalCid
-              assertMsg 
-               "Medicamento foi entregue a transportadora"
-                (medicamentoExpedido.status ==  "Enviado")
-              assertMsg 
-               "Lote do medicamento"
-                (medicamentoExpedido.lote == informarHospital.lote)
-              assertMsg 
-               "Nome do medicamento"
-                (medicamentoExpedido.name == informarHospital.name)  
-             
-              create InformarHospital with ..      
-
+       
 template Request
   with
     customer : Party

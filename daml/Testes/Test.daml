@@ -3,9 +3,12 @@ import Fabricante.Role qualified as FabricanteRole
 import Fabricante.Service qualified as FabricanteService
 import Transportadora.Role qualified as TransporteRole
 import Hospital.Role qualified as HospitalRole
+import Paciente.Role qualified as PacienteRole
 import Transportadora.Service qualified as TransportadoraService
 import Hospital.Service qualified as HospitalService
+import Paciente.Service qualified as PacienteService
 import Daml.Script
+import DA.Date
 
 setup : Script ()
 setup = script do
@@ -15,22 +18,40 @@ setup = script do
     transportadora  <- allocatePartyWithHint "Transportadora" $ PartyIdHint "Transportadora"
     paciente  <- allocatePartyWithHint "Paciente" $ PartyIdHint "Paciente"
 
-
-
     hospitalRoleCid <- submit hospital do createCmd HospitalRole.Role with provider = hospital; observers = []
+    fabricanteRoleCid <- submit fabricante do createCmd FabricanteRole.Role with provider = fabricante; observers = []
+    transportadoraRoleCid <- submit transportadora do createCmd TransporteRole.Role with provider = transportadora; observers = []
+    pacientelRoleCid <- submit paciente do createCmd PacienteRole.Role with provider = paciente; observers = []
+
+    
     requestFabricanteServiceCid <- submit hospital do exerciseCmd hospitalRoleCid HospitalRole.RequestFabricanteService with fabricanteProvider = fabricante 
-    fabricanteRoleCid <- submit fabricante do exerciseCmd requestFabricanteServiceCid FabricanteService.Approve  
+    fabricanteServiceCid <- submit fabricante do exerciseCmd requestFabricanteServiceCid FabricanteService.Approve 
 
+    pedidoMedicamentoCid <- submit hospital do exerciseCmd fabricanteServiceCid FabricanteService.PedirMedicamento with name = "Medicamento"
+
+    requestTransportadoraServiceCid <- submit fabricante do exerciseCmd fabricanteRoleCid FabricanteRole.RequestTransportadoraService with transportadoraProvider = transportadora
+    transporteServiceCid <- submit transportadora do exerciseCmd requestTransportadoraServiceCid TransportadoraService.Approve
+
+    requerTransporteCid <- submit fabricante do exerciseCmd transporteServiceCid TransportadoraService.RequisicaoTransporte with name = "Medicamento"; status = "Pendente"; lote = "01"; dataPrevistaEntrega = date 2023 Jan 10
+    confirmacaoRecolhaCid <- submit transportadora do exerciseCmd transporteServiceCid TransportadoraService.ConfirmarRecolha with requerTransporteCid; dataPrevistaEntrega = date 2023 Jan 11; temperatura = "5º"
     
+    medicamentoExpedidoCid <- submit fabricante do exerciseCmd fabricanteServiceCid FabricanteService.ExpedirMedicamento with pedidoMedicamentoCid; confirmaRecolhaCid = confirmacaoRecolhaCid; name = "Medicamento"; status = "A Caminho"; lote = "01"; temperatura = "6º"
 
+    confirmacaoEntregaCid <- submit transportadora do exerciseCmd transporteServiceCid TransportadoraService.ConfirmaEntrega with confirmacaoRecolhaCid; name = "Medicamento"
 
-
-
-  --  fabricanteRoleCid <- submit fabricante do createCmd FabricanteRole.Role with provider = fabricante; observers = []
-
-   -- requestTransportadoraServiceCid <- submit  fabricante do exerciseCmd fabricanteRoleCid  FabricanteRole.RequestTransportadoraService with transportadoraProvider = transportadora
+    submit hospital do exerciseCmd fabricanteServiceCid FabricanteService.ConfirmarEntregaHospital with medicamentoExpedidoCid ; name = "Medicamento"; status = "Entregue"; lote = "01"; date = date 2023 Jan 11; temperatura= "5º"
     
-  --  transporteRoleCid <- submit transportadora do exerciseCmd requestTransportadoraServiceCid TransportadoraService.Approve
+    requestHospitalServiceCid <- submit paciente do exerciseCmd pacientelRoleCid PacienteRole.RequestHospitalService with hospitalProvider = hospital
+    hospitalServiceCid <- submit hospital do exerciseCmd requestHospitalServiceCid HospitalService.Approve 
+    stockCid <- submit hospital do exerciseCmd hospitalServiceCid HospitalService.StockMedicamentos with name = "Medicamento"; quantidade = "1"
+    admrRemedioCid <- submit hospital do exerciseCmd hospitalServiceCid HospitalService.AdmrRemedio with stockCid, name = "Medicamento"; lote ="01"; status ="A ser admn"
+
+   -- submit hospital do exerciseCmd hospitalServiceCid HospitalService.AdmrRemedio with name = "Medicamento"; lote = "01"; status ="A adminstrar"
+    -- transportadora confirma entrega
+
+ --   c <- submit fabricante do exerciseCmd requestFabricanteServiceCid FabricanteService.PedirMedicamento with name = "Buscopam"
+
+  
 
 --hospitalServiceOfferCid <- submit transporte do exerciseCmd transporteRoleCid TransporteRole.OfferHospitalService with customer = hospital  
 --hospitalServiceCid <- submit hospital do exerciseCmd hospitalServiceOfferCid HospitalService.Accept

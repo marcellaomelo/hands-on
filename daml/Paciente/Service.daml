@@ -1,0 +1,33 @@
+module Paciente.Service where
+import Paciente.Model
+
+template Service
+    with 
+        provider: Party -- hospital
+        customer: Party -- paciente
+    where   
+        signatory  provider, customer
+
+        key(provider, customer) : (Party,Party)
+        maintainer key._1 
+  
+template Request
+  with
+    customer : Party
+    provider : Party
+  where
+    signatory customer
+    observer provider
+    choice Cancel : ()
+        controller customer 
+        do pure ()
+
+    choice Reject : ()    
+        controller provider 
+        do pure ()
+
+    choice Approve : ContractId Service
+
+      controller  provider
+      do
+        create Service with .. 

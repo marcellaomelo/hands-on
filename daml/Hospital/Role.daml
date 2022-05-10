@@ -1,6 +1,6 @@
 module Hospital.Role where
 import Fabricante.Service qualified as FabricanteService 
-
+import Hospital.Model qualified as HospitalModel
 template Role
     with 
         provider: Party
@@ -18,6 +18,13 @@ template Role
             controller provider 
                 do 
                     create FabricanteService.Request with customer = provider; provider = fabricanteProvider
+
+        nonconsuming choice AdicionaStock : ContractId HospitalModel.Stock
+            with 
+                confirmarEntregaHospitalCid : ContractId FabricanteService.ConfirmarEntregaHospital
+            controller provider 
+                do 
+                    create HospitalModel.Stock with name = "Medicamento"; quantidade= "1"; ..          
 
          
                             
