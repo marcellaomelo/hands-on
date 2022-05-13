@@ -13,13 +13,6 @@ template Service
         key(provider, customer) : (Party,Party)
         maintainer key._1 
 
-        nonconsuming choice StockMedicamentos : ContractId Stock 
-          with
-            name : Text
-            quantidade:Text 
-          controller provider
-            do
-              create Stock with ..
 
         nonconsuming choice AdmrRemedio : ContractId AdmRemedio 
           with
@@ -33,8 +26,6 @@ template Service
               archive stockCid
               create AdmRemedio  with date = toDateUTC now; ..
                     
-
-
 template Request
   with
     customer : Party

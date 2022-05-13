@@ -1,5 +1,6 @@
 module Hospital.Role where
 import Fabricante.Service qualified as FabricanteService 
+import Fabricante.Model qualified as FabricanteModel
 import Hospital.Model qualified as HospitalModel
 template Role
     with 
@@ -21,10 +22,12 @@ template Role
 
         nonconsuming choice AdicionaStock : ContractId HospitalModel.Stock
             with 
-                confirmarEntregaHospitalCid : ContractId FabricanteService.ConfirmarEntregaHospital
+                confirmacaoEntregaHospitalCid : ContractId FabricanteModel.ConfirmacaoEntregaHospital
             controller provider 
                 do 
-                    create HospitalModel.Stock with name = "Medicamento"; quantidade= "1"; ..          
+                    confirmacaoEntregaHospital <- fetch confirmacaoEntregaHospitalCid 
+                    
+                    create HospitalModel.Stock with name =  confirmacaoEntregaHospital.name ; quantidade= "1"; ..          
 
          
                             

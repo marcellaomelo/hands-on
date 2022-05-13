@@ -39,11 +39,12 @@ setup = script do
 
     confirmacaoEntregaCid <- submit transportadora do exerciseCmd transporteServiceCid TransportadoraService.ConfirmaEntrega with confirmacaoRecolhaCid; name = "Medicamento"
 
-    submit hospital do exerciseCmd fabricanteServiceCid FabricanteService.ConfirmarEntregaHospital with medicamentoExpedidoCid ; name = "Medicamento"; status = "Entregue"; lote = "01"; date = date 2023 Jan 11; temperatura= "5º"
+    confirmacaoEntregaHospitalCid <- submit hospital do exerciseCmd fabricanteServiceCid FabricanteService.ConfirmarEntregaHospital with medicamentoExpedidoCid ; name = "Medicamento"; status = "Entregue"; lote = "01"; date = date 2023 Jan 11; temperatura= "5º"
     
     requestHospitalServiceCid <- submit paciente do exerciseCmd pacientelRoleCid PacienteRole.RequestHospitalService with hospitalProvider = hospital
     hospitalServiceCid <- submit hospital do exerciseCmd requestHospitalServiceCid HospitalService.Approve 
-    stockCid <- submit hospital do exerciseCmd hospitalServiceCid HospitalService.StockMedicamentos with name = "Medicamento"; quantidade = "1"
+    --stockCid <- submit hospital do exerciseCmd hospitalServiceCid HospitalService.AdmrRemedio with name = "Medicamento",quantidade = "01"
+    stockCid <- submit hospital do exerciseCmd hospitalRoleCid HospitalRole.AdicionaStock with confirmacaoEntregaHospitalCid
     admrRemedioCid <- submit hospital do exerciseCmd hospitalServiceCid HospitalService.AdmrRemedio with stockCid, name = "Medicamento"; lote ="01"; status ="A ser admn"
 
    -- submit hospital do exerciseCmd hospitalServiceCid HospitalService.AdmrRemedio with name = "Medicamento"; lote = "01"; status ="A adminstrar"
