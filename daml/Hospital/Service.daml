@@ -6,7 +6,6 @@ template Service
     with 
         provider: Party -- hospital
         customer: Party -- paciente
-        --observers : [Party]
     where   
         signatory  provider, customer
 

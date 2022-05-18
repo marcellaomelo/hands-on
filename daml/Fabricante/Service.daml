@@ -43,7 +43,6 @@ template Service
         nonconsuming choice ConfirmarEntregaHospital : ContractId ConfirmacaoEntregaHospital 
           with
             medicamentoExpedidoCid : ContractId MedicamentoExpedido
-           -- confirmacaoEntregaHospitalCid: ContractId Fabricante.Model.ConfirmacaoEntregaHospital
             name : Text
             status : Text
             lote: Text
@@ -51,24 +50,8 @@ template Service
             temperatura: Text
           controller customer
             do
-              --MedicamentoExpedido{..} <- fetch medicamentoExpedidoCid
-              medicamentoExpedido <- fetch medicamentoExpedidoCid
-             -- confirmaEntregaHospital <- fetch confirmacaoEntregaHospitalCid
-            {-   assertMsg 
-               "Nome do medicamento está incorreto"
-                (confirmaEntregaHospital.name == medicamentoExpedido.name)
-              assertMsg 
-               "Lote do medicamento está incorreto"
-                (confirmaEntregaHospital.lote == medicamentoExpedido.lote)
-              assertMsg 
-               "Temperatura do medicamento está incorreta"
-                (confirmaEntregaHospital.temperatura == medicamentoExpedido.temperatura)
-              assertMsg 
-               "Estado da entrega não atualizado"
-                (confirmaEntregaHospital.status  == medicamentoExpedido.status)  -}          
+              medicamentoExpedido <- fetch medicamentoExpedidoCid         
               create ConfirmacaoEntregaHospital with ..
-
-
        
 template Request
   with

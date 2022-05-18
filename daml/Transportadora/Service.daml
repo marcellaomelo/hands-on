@@ -22,9 +22,8 @@ template Service
             name : Text
           controller provider
             do
-              --validar que recolha bate certo com a entrega
+              confirmaRecolha <- fetch confirmacaoRecolhaCid
               create Transportadora.Model.ConfirmacaoEntrega with ..
-
 
         nonconsuming choice ConfirmarRecolha : ContractId ConfirmacaoRecolha 
           with
@@ -34,22 +33,9 @@ template Service
           controller provider
             do
               now <- getTime
-              RequerTransporte{..} <- fetch requerTransporteCid                    
-              {-        
-              assertMsg 
-                "Nome do medicamento está incorreto"
-                  (confirmaEntrega.name == confirmaRecolha.name)
-              assertMsg 
-                "Temperatura medicamento está incorreto"
-                  (confirmaEntrega.temperatura == confirmaRecolha.temperatura)
-              assertMsg 
-                "Lote do medicamento está incorreto"
-                  (confirmaEntrega.name == confirmaRecolha.name) 
-              -}
+              RequerTransporte{..} <- fetch requerTransporteCid                     
               archive requerTransporteCid
               create ConfirmacaoRecolha with date = toDateUTC now; ..
-
-
         nonconsuming choice RequisicaoTransporte : ContractId RequerTransporte 
           with
             name : Text
@@ -60,13 +46,6 @@ template Service
             do
               now <- getTime              
               create RequerTransporte with date = toDateUTC now; ..               
-
-            
-
-        -- choice fabricante requere transporte
-          -- 
-        -- choice transportadora confirma recolha
-
 
 template Request
   with

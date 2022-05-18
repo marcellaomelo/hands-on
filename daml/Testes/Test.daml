@@ -23,41 +23,29 @@ setup = script do
     transportadoraRoleCid <- submit transportadora do createCmd TransporteRole.Role with provider = transportadora; observers = []
     pacientelRoleCid <- submit paciente do createCmd PacienteRole.Role with provider = paciente; observers = []
 
-    
+    --caso 1
     requestFabricanteServiceCid <- submit hospital do exerciseCmd hospitalRoleCid HospitalRole.RequestFabricanteService with fabricanteProvider = fabricante 
     fabricanteServiceCid <- submit fabricante do exerciseCmd requestFabricanteServiceCid FabricanteService.Approve 
-
     pedidoMedicamentoCid <- submit hospital do exerciseCmd fabricanteServiceCid FabricanteService.PedirMedicamento with name = "Medicamento"
-
+    
+    --Caso 2
     requestTransportadoraServiceCid <- submit fabricante do exerciseCmd fabricanteRoleCid FabricanteRole.RequestTransportadoraService with transportadoraProvider = transportadora
     transporteServiceCid <- submit transportadora do exerciseCmd requestTransportadoraServiceCid TransportadoraService.Approve
-
     requerTransporteCid <- submit fabricante do exerciseCmd transporteServiceCid TransportadoraService.RequisicaoTransporte with name = "Medicamento"; status = "Pendente"; lote = "01"; dataPrevistaEntrega = date 2023 Jan 10
     confirmacaoRecolhaCid <- submit transportadora do exerciseCmd transporteServiceCid TransportadoraService.ConfirmarRecolha with requerTransporteCid; dataPrevistaEntrega = date 2023 Jan 11; temperatura = "5º"
     
+    --Caso 3
     medicamentoExpedidoCid <- submit fabricante do exerciseCmd fabricanteServiceCid FabricanteService.ExpedirMedicamento with pedidoMedicamentoCid; confirmaRecolhaCid = confirmacaoRecolhaCid; name = "Medicamento"; status = "A Caminho"; lote = "01"; temperatura = "6º"
-
+    
+    --Caso 4
     confirmacaoEntregaCid <- submit transportadora do exerciseCmd transporteServiceCid TransportadoraService.ConfirmaEntrega with confirmacaoRecolhaCid; name = "Medicamento"
-
     confirmacaoEntregaHospitalCid <- submit hospital do exerciseCmd fabricanteServiceCid FabricanteService.ConfirmarEntregaHospital with medicamentoExpedidoCid ; name = "Medicamento"; status = "Entregue"; lote = "01"; date = date 2023 Jan 11; temperatura= "5º"
     
+    --Caso 5
     requestHospitalServiceCid <- submit paciente do exerciseCmd pacientelRoleCid PacienteRole.RequestHospitalService with hospitalProvider = hospital
     hospitalServiceCid <- submit hospital do exerciseCmd requestHospitalServiceCid HospitalService.Approve 
-    --stockCid <- submit hospital do exerciseCmd hospitalServiceCid HospitalService.AdmrRemedio with name = "Medicamento",quantidade = "01"
     stockCid <- submit hospital do exerciseCmd hospitalRoleCid HospitalRole.AdicionaStock with confirmacaoEntregaHospitalCid
-    admrRemedioCid <- submit hospital do exerciseCmd hospitalServiceCid HospitalService.AdmrRemedio with stockCid, name = "Medicamento"; lote ="01"; status ="A ser admn"
-
-   -- submit hospital do exerciseCmd hospitalServiceCid HospitalService.AdmrRemedio with name = "Medicamento"; lote = "01"; status ="A adminstrar"
-    -- transportadora confirma entrega
-
- --   c <- submit fabricante do exerciseCmd requestFabricanteServiceCid FabricanteService.PedirMedicamento with name = "Buscopam"
-
-  
-
---hospitalServiceOfferCid <- submit transporte do exerciseCmd transporteRoleCid TransporteRole.OfferHospitalService with customer = hospital  
---hospitalServiceCid <- submit hospital do exerciseCmd hospitalServiceOfferCid HospitalService.Accept
-
---submit transporte  do exerciseCmd transporteRoleCid TransporteRole.CreatePaciente with hospital;  name = "Anfotericina B" ; lote = "010101"
+    admrRemedioCid <- submit hospital do exerciseCmd hospitalServiceCid HospitalService.AdmrRemedio with stockCid, name = "Medicamento"; lote ="01"; status ="Administrado"
 
     pure()
 --
